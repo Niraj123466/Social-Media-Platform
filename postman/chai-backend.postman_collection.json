@@ -1,0 +1,316 @@
+{
+  "info": {
+    "name": "Chai Backend API",
+    "_postman_id": "b9c1b3c4-2f0a-4f78-9c9c-collection-local",
+    "description": "Postman collection for Chai Backend API covering v1 endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "test_user_id", "value": "" },
+    { "key": "test_video_id", "value": "" },
+    { "key": "test_comment_id", "value": "" },
+    { "key": "test_playlist_id", "value": "" },
+    { "key": "test_tweet_id", "value": "" },
+    { "key": "test_channel_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Healthcheck",
+      "item": [
+        {
+          "name": "GET /healthcheck",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/healthcheck"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth & Users",
+      "item": [
+        {
+          "name": "POST /users/register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "avatar", "type": "file", "src": [] },
+                { "key": "coverImage", "type": "file", "src": [] },
+                { "key": "username", "type": "text", "value": "john_doe" },
+                { "key": "email", "type": "text", "value": "john@example.com" },
+                { "key": "fullName", "type": "text", "value": "John Doe" },
+                { "key": "password", "type": "text", "value": "Passw0rd!" }
+              ]
+            },
+            "url": "{{base_url}}/users/register"
+          }
+        },
+        {
+          "name": "POST /users/login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Passw0rd!\"\n}"
+            },
+            "url": "{{base_url}}/users/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.accessToken) pm.collectionVariables.set('access_token', json.data.accessToken);",
+                  "if (json?.data?.refreshToken) pm.collectionVariables.set('refresh_token', json.data.refreshToken);",
+                  "if (json?.data?.user?._id) pm.collectionVariables.set('test_user_id', json.data.user._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /users/refresh-token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/users/refresh-token",
+            "header": [ { "key": "Authorization", "value": "Bearer {{refresh_token}}" } ]
+          }
+        },
+        {
+          "name": "POST /users/logout",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": "{{base_url}}/users/logout"
+          }
+        },
+        {
+          "name": "POST /users/change-password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"Passw0rd!\",\n  \"newPassword\": \"StrongerP@ss1\"\n}" },
+            "url": "{{base_url}}/users/change-password"
+          }
+        },
+        {
+          "name": "GET /users/current-user",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/users/current-user" }
+        },
+        {
+          "name": "PATCH /users/update-account",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Johnathan Doe\"\n}" },
+            "url": "{{base_url}}/users/update-account"
+          }
+        },
+        {
+          "name": "PATCH /users/avatar",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "avatar", "type": "file", "src": [] } ] },
+            "url": "{{base_url}}/users/avatar"
+          }
+        },
+        {
+          "name": "PATCH /users/cover-image",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "coverImage", "type": "file", "src": [] } ] },
+            "url": "{{base_url}}/users/cover-image"
+          }
+        },
+        {
+          "name": "GET /users/c/:username",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/users/c/john_doe" }
+        },
+        {
+          "name": "GET /users/history",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/users/history" }
+        }
+      ]
+    },
+    {
+      "name": "Videos",
+      "item": [
+        {
+          "name": "GET /videos",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/videos" }
+        },
+        {
+          "name": "POST /videos",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "videoFile", "type": "file", "src": [] },
+                { "key": "thumbnail", "type": "file", "src": [] },
+                { "key": "title", "type": "text", "value": "My First Video" },
+                { "key": "description", "type": "text", "value": "A sample description" }
+              ]
+            },
+            "url": "{{base_url}}/videos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?._id) pm.collectionVariables.set('test_video_id', json.data._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /videos/:videoId",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/videos/{{test_video_id}}" }
+        },
+        {
+          "name": "PATCH /videos/:videoId",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "thumbnail", "type": "file", "src": [] }, { "key": "title", "type": "text", "value": "Updated Title" } ] },
+            "url": "{{base_url}}/videos/{{test_video_id}}"
+          }
+        },
+        {
+          "name": "PATCH /videos/toggle/publish/:videoId",
+          "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/videos/toggle/publish/{{test_video_id}}" }
+        },
+        {
+          "name": "DELETE /videos/:videoId",
+          "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/videos/{{test_video_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "GET /comments/:videoId",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/comments/{{test_video_id}}" }
+        },
+        {
+          "name": "POST /comments/:videoId",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Nice video!\"\n}" },
+            "url": "{{base_url}}/comments/{{test_video_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?._id) pm.collectionVariables.set('test_comment_id', json.data._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /comments/c/:commentId",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Edited comment\"\n}" },
+            "url": "{{base_url}}/comments/c/{{test_comment_id}}"
+          }
+        },
+        {
+          "name": "DELETE /comments/c/:commentId",
+          "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/comments/c/{{test_comment_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Likes",
+      "item": [
+        { "name": "POST /likes/toggle/v/:videoId", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/likes/toggle/v/{{test_video_id}}" } },
+        { "name": "POST /likes/toggle/c/:commentId", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/likes/toggle/c/{{test_comment_id}}" } },
+        { "name": "POST /likes/toggle/t/:tweetId", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/likes/toggle/t/{{test_tweet_id}}" } },
+        { "name": "GET /likes/videos", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/likes/videos" } }
+      ]
+    },
+    {
+      "name": "Playlists",
+      "item": [
+        {
+          "name": "POST /playlist",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Favorites\",\n  \"description\": \"My fav videos\"\n}" },
+            "url": "{{base_url}}/playlist"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?._id) pm.collectionVariables.set('test_playlist_id', json.data._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        { "name": "GET /playlist/:playlistId", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/playlist/{{test_playlist_id}}" } },
+        { "name": "PATCH /playlist/:playlistId", "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Favorites\"\n}" }, "url": "{{base_url}}/playlist/{{test_playlist_id}}" } },
+        { "name": "DELETE /playlist/:playlistId", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/playlist/{{test_playlist_id}}" } },
+        { "name": "PATCH /playlist/add/:videoId/:playlistId", "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/playlist/add/{{test_video_id}}/{{test_playlist_id}}" } },
+        { "name": "PATCH /playlist/remove/:videoId/:playlistId", "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/playlist/remove/{{test_video_id}}/{{test_playlist_id}}" } },
+        { "name": "GET /playlist/user/:userId", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/playlist/user/{{test_user_id}}" } }
+      ]
+    },
+    {
+      "name": "Subscriptions",
+      "item": [
+        { "name": "GET /subscriptions/c/:channelId", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/subscriptions/c/{{test_channel_id}}" } },
+        { "name": "POST /subscriptions/c/:channelId", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/subscriptions/c/{{test_channel_id}}" } },
+        { "name": "GET /subscriptions/u/:subscriberId", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/subscriptions/u/{{test_user_id}}" } }
+      ]
+    },
+    {
+      "name": "Tweets",
+      "item": [
+        { "name": "POST /tweets", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello world!\"\n}" }, "url": "{{base_url}}/tweets" } },
+        { "name": "GET /tweets/user/:userId", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/tweets/user/{{test_user_id}}" } },
+        { "name": "PATCH /tweets/:tweetId", "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"content\": \"Updated tweet\"\n}" }, "url": "{{base_url}}/tweets/{{test_tweet_id}}" } },
+        { "name": "DELETE /tweets/:tweetId", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/tweets/{{test_tweet_id}}" } }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "GET /dashboard/stats", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/dashboard/stats" } },
+        { "name": "GET /dashboard/videos", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ], "url": "{{base_url}}/dashboard/videos" } }
+      ]
+    }
+  ]
+}
+
+
